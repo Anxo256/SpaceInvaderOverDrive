@@ -1,2 +1,8 @@
-# Auto detect text files and perform LF normalization
+# Forzar comportamiento automático de saltos de línea
 * text=auto
+
+# Asegurar que los scripts de C# y metadatos mantengan un formato consistente
+*.cs text eol=crlf
+*.meta text eol=crlf
+*.unity text eol=lf
+*.asset text eol=lf
