@@ -3,6 +3,7 @@ using UnityEngine;
 public class AlienSpawner : MonoBehaviour
 {
     public GameObject AlienPrefab;
+    public GameObject[] RowPrefabs;
     public int Rows = 5;
     public int Columns = 11;
     public float SpacingX = 1.2f;
@@ -23,12 +24,19 @@ public class AlienSpawner : MonoBehaviour
         {
             float PositionY = StartY - (Row * SpacingY);
 
+            GameObject PrefabForRow = AlienPrefab;
+
+            if (RowPrefabs != null && RowPrefabs.Length > 0)
+            {
+                PrefabForRow = RowPrefabs[Row % RowPrefabs.Length];
+            }
+
             for (int Col = 0; Col < Columns; Col++)
             {
                 float PositionX = StartX + (Col * SpacingX);
                 Vector3 SpawnPosition = new Vector3(PositionX, PositionY, 0f);
                 
-                GameObject NewAlien = Instantiate(AlienPrefab, SpawnPosition, Quaternion.identity);
+                GameObject NewAlien = Instantiate(PrefabForRow, SpawnPosition, Quaternion.identity);
                 
                 if (AliensParent != null)
                 {

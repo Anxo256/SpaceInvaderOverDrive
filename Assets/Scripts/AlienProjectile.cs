@@ -7,10 +7,8 @@ public class AlienProjectile : MonoBehaviour
 
     void Update()
     {
-        // Mover hacia abajo
         transform.Translate(Vector3.down * ProjectileSpeed * Time.deltaTime);
 
-        // Destruir si sale de la pantalla por abajo
         if (transform.position.y < LowerLimit)
         {
             Destroy(gameObject);

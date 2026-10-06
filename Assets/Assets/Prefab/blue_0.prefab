@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 5115930613443616240}
   - component: {fileID: 140454314624885300}
   m_Layer: 0
-  m_Name: red_0
+  m_Name: blue_0
   m_TagString: Alien
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -83,7 +83,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_MaskInteraction: 0
-  m_Sprite: {fileID: 8166710274925509176, guid: 893f7bd9aca4401419e9ea89710aa825, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 32d95eb39363d8840a01e415fc426393, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -131,13 +131,13 @@ BoxCollider2D:
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 1.25, y: 0.90625}
+    oldSize: {x: 1.25, y: 1}
     newSize: {x: 0.4, y: 0.29}
     adaptiveTilingThreshold: 0.5
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 1.25, y: 0.90625}
+  m_Size: {x: 1.25, y: 1}
   m_EdgeRadius: 0
 --- !u!50 &140454314624885300
 Rigidbody2D:

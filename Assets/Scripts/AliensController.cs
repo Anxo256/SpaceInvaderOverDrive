@@ -4,11 +4,15 @@ public class AliensController : MonoBehaviour
 {
     public float Speed = 2f;
     public float DescentDistance = 0.5f;
-    public float ScreenLimitX = 5f;
+    public float ScreenLimitX = 8.2f;
+    public float InvasionLimitY = -3.4f;
     
     public GameObject AlienProjectilePrefab;
     public float ShootInterval = 1.5f; 
     private float NextShootTime = 0f;
+
+    private bool HadAliens = false;
+    private bool GameFinished = false;
 
     private Vector3 Direction = Vector3.right;
 
@@ -19,20 +23,46 @@ public class AliensController : MonoBehaviour
 
     void Update()
     {
+        if (GameFinished) return;
+
+        if (transform.childCount > 0)
+        {
+            HadAliens = true;
+        }
+        
+        if (HadAliens && transform.childCount == 0)
+        {
+            GameFinished = true;
+            InterfaceManager.Instance.Win();
+            return;
+        }
+
         transform.Translate(Direction * Speed * Time.deltaTime);
+
+        bool MustTurn = false;
 
         foreach (Transform Alien in transform)
         {
+            if (Alien.position.y <= InvasionLimitY)
+            {
+                GameFinished = true;
+                InterfaceManager.Instance.GameOver();
+                return;
+            }
+
             if (Direction == Vector3.right && Alien.position.x >= ScreenLimitX)
             {
-                ChangeDirectionAndDescend();
-                break;
+                MustTurn = true;
             }
             else if (Direction == Vector3.left && Alien.position.x <= -ScreenLimitX)
             {
-                ChangeDirectionAndDescend();
-                break;
+                MustTurn = true;
             }
+        }
+
+        if (MustTurn)
+        {
+            ChangeDirectionAndDescend();
         }
         
         if (Time.time >= NextShootTime && transform.childCount > 0)
