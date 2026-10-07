@@ -8,15 +8,13 @@ public class InterfaceManager : MonoBehaviour
 
     public TextMeshProUGUI ScoreText;
     public TextMeshProUGUI LivesText;
-    public TextMeshProUGUI WeaponText;
+    public WeaponSlotUI[] WeaponSlots;   // los 3 casilleros de arma (lado izquierdo)
     public GameObject GameOverScreen;
     public TextMeshProUGUI GameOverText;
 
     private int CurrentScore = 0;
     private int CurrentLives = 3;
     private bool GameEnded = false;
-
-    private static readonly string[] WeaponNames = { "BASE", "SHOTGUN", "MISSILE" };
 
     void Awake()
     {
@@ -76,31 +74,18 @@ public class InterfaceManager : MonoBehaviour
         LivesText.text = "LIVES: " + Mathf.Max(CurrentLives, 0).ToString();
     }
 
-    public void UpdateWeaponHud(int CurrentWeapon, bool Ready)
+    // Actualiza los 3 casilleros de arma: el circulo se llena mientras recarga
+    public void UpdateWeaponHud(int CurrentWeapon, float[] RemainingTimes, float[] Cooldowns)
     {
-        if (WeaponText == null) return;
+        if (WeaponSlots == null) return;
 
-        string Line = "";
-
-        for (int i = 0; i < WeaponNames.Length; i++)
+        for (int i = 0; i < WeaponSlots.Length; i++)
         {
-            string Label = "[" + (i + 1) + "] " + WeaponNames[i];
-
-            if (i == CurrentWeapon)
+            if (WeaponSlots[i] != null)
             {
-                string Color = Ready ? "#FFFFFF" : "#FF9933";
-                Line += "<color=" + Color + "><b>" + Label + "</b></color>";
+                WeaponSlots[i].SetState(i == CurrentWeapon, RemainingTimes[i], Cooldowns[i]);
             }
-            else
-            {
-                Line += "<color=#777777>" + Label + "</color>";
-            }
-
-            if (i < WeaponNames.Length - 1) Line += "      ";
         }
-
-        Line += "\n" + (Ready ? "<color=#66FF66>READY</color>" : "<color=#FF9933>RELOADING...</color>");
-        WeaponText.text = Line;
     }
 
     public void GameOver()

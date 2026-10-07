@@ -20,14 +20,19 @@ public class PlayerController : MonoBehaviour
     public GameObject MissilePrefab;
     public float MissileCooldown = 2.5f;
 
-    private float NextShotTime = 0f; 
+    // Cada arma tiene su propio tiempo de reutilizacion (0 = base, 1 = escopeta, 2 = misil)
+    private float[] NextShotTimes = new float[3];
+
     [Header("Particulas de disparo (destello en la nave)")]
     public GameObject BaseMuzzleFx;
     public GameObject ShotgunMuzzleFx;
     public GameObject MissileMuzzleFx;
 
     private int CurrentWeapon = 0;
-    private bool WasReady = true;
+    private int LastReadyMask = 7;     // bits: arma lista (1 = base, 2 = escopeta, 4 = misil)
+    private float NextHudRefresh = 0f;
+    private float[] RemainingCache = new float[3];
+    private float[] CooldownCache = new float[3];
 
     void Start()
     {
@@ -53,8 +58,10 @@ public class PlayerController : MonoBehaviour
             TryShoot();
         }
 
-        bool Ready = Time.time >= NextShotTime;
-        if (Ready != WasReady)
+        // Refrescar el HUD cuando alguna arma termina de recargar,
+        // y en cada frame mientras haya alguna recarga (para que el circulo se llene fluido)
+        int ReadyMask = GetReadyMask();
+        if (ReadyMask != LastReadyMask || (ReadyMask != 7 && Time.time >= NextHudRefresh))
         {
             RefreshHud();
         }
@@ -68,21 +75,22 @@ public class PlayerController : MonoBehaviour
 
     public bool TryShoot()
     {
-        if (Time.time < NextShotTime) return false;
+        // Solo importa la recarga del arma seleccionada; las demas siguen su propio tiempo
+        if (GetRemaining(CurrentWeapon) > 0f) return false;
 
         switch (CurrentWeapon)
         {
             case 1:
                 ShootShotgun();
-                NextShotTime = Time.time + ShotgunCooldown;
+                NextShotTimes[1] = Time.time + ShotgunCooldown;
                 break;
             case 2:
                 ShootMissile();
-                NextShotTime = Time.time + MissileCooldown;
+                NextShotTimes[2] = Time.time + MissileCooldown;
                 break;
             default:
                 Shoot();
-                NextShotTime = Time.time + TimeBetweenShots;
+                NextShotTimes[0] = Time.time + TimeBetweenShots;
                 break;
         }
 
@@ -125,13 +133,41 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    // Segundos que le faltan al arma indicada para poder disparar de nuevo (0 = lista)
+    public float GetRemaining(int Weapon)
+    {
+        return Mathf.Max(0f, NextShotTimes[Mathf.Clamp(Weapon, 0, 2)] - Time.time);
+    }
+
+    int GetReadyMask()
+    {
+        int Mask = 0;
+
+        for (int i = 0; i < 3; i++)
+        {
+            if (GetRemaining(i) <= 0f) Mask |= (1 << i);
+        }
+
+        return Mask;
+    }
+
     void RefreshHud()
     {
-        WasReady = Time.time >= NextShotTime;
+        LastReadyMask = GetReadyMask();
+        NextHudRefresh = Time.time;
 
         if (InterfaceManager.Instance != null)
         {
-            InterfaceManager.Instance.UpdateWeaponHud(CurrentWeapon, WasReady);
+            for (int i = 0; i < 3; i++)
+            {
+                RemainingCache[i] = GetRemaining(i);
+            }
+
+            CooldownCache[0] = TimeBetweenShots;
+            CooldownCache[1] = ShotgunCooldown;
+            CooldownCache[2] = MissileCooldown;
+
+            InterfaceManager.Instance.UpdateWeaponHud(CurrentWeapon, RemainingCache, CooldownCache);
         }
     }
 }
