@@ -4,20 +4,18 @@ using TMPro;
 
 public class WeaponSlotUI : MonoBehaviour
 {
-    public Image Fill;                  // circulo con fill radial: se llena mientras recarga
-    public Image Border;                // aro del circulo
-    public TextMeshProUGUI NameText;    // nombre del arma
-    public TextMeshProUGUI StatusText;  // READY o segundos que faltan
+    public Image Fill; 
+    public Image Border;
+    public TextMeshProUGUI NameText;
+    public TextMeshProUGUI StatusText;
     public Color WeaponColor = Color.white;
 
     private string LastStatus = "";
-
-    // Remaining = segundos que faltan, Cooldown = duracion total de la recarga del arma
+    
     public void SetState(bool Selected, float Remaining, float Cooldown)
     {
         bool Ready = Remaining <= 0f;
-
-        // El circulo se llena de 0 a 1 mientras recarga; lleno = lista
+        
         float Progress = (Cooldown > 0f) ? Mathf.Clamp01(1f - Remaining / Cooldown) : 1f;
         Fill.fillAmount = Ready ? 1f : Progress;
         Fill.color = Ready ? WeaponColor : Color.Lerp(Color.black, WeaponColor, 0.6f);

@@ -18,6 +18,9 @@ public class AliensController : MonoBehaviour
 
     void Start()
     {
+        ScreenLimitX = ScreenBounds.Right - 1.0f;
+        InvasionLimitY = ScreenBounds.Bottom + 2.5f;
+
         NextShootTime = Time.time + ShootInterval;
     }
 

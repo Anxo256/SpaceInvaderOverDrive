@@ -18,7 +18,7 @@ public class Projectile : MonoBehaviour
 
         Age += Time.deltaTime;
 
-        if (transform.position.y > UpperLimit || Mathf.Abs(transform.position.x) > SideLimit)
+        if (ScreenBounds.IsOutside(transform.position, 1.5f))
         {
             Destroy(gameObject);
         }

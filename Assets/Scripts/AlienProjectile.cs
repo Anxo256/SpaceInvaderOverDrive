@@ -9,7 +9,7 @@ public class AlienProjectile : MonoBehaviour
     {
         transform.Translate(Vector3.down * ProjectileSpeed * Time.deltaTime);
 
-        if (transform.position.y < LowerLimit)
+        if (ScreenBounds.IsOutside(transform.position, 1.5f))
         {
             Destroy(gameObject);
         }

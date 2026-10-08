@@ -24,7 +24,7 @@ public class Missile : MonoBehaviour
         CurrentSpeed = Mathf.MoveTowards(CurrentSpeed, MaxSpeed, Acceleration * Time.deltaTime);
         transform.Translate(Vector3.up * CurrentSpeed * Time.deltaTime);
 
-        if (transform.position.y > UpperLimit)
+        if (ScreenBounds.IsOutside(transform.position, 1.5f))
         {
             Destroy(gameObject);
         }

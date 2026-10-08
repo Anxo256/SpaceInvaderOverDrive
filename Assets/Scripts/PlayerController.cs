@@ -2,8 +2,11 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
-    public float Speed = 10f;
-    public float LimitX = 8.5f; 
+    public float Speed = 14f;
+    [Header("Zona de movimiento (se calcula con la camara)")]
+    public float MarginX = 0.8f;
+    public float MarginBottom = 0.8f;
+    [Range(0.1f, 1f)] public float PlayableHeight = 0.5f;
     public Transform FirePoint;
 
     [Header("Arma 1: disparo base (tecla 1)")]
@@ -19,8 +22,7 @@ public class PlayerController : MonoBehaviour
     [Header("Arma 3: misil (tecla 3)")]
     public GameObject MissilePrefab;
     public float MissileCooldown = 2.5f;
-
-    // Cada arma tiene su propio tiempo de reutilizacion (0 = base, 1 = escopeta, 2 = misil)
+    
     private float[] NextShotTimes = new float[3];
 
     [Header("Particulas de disparo (destello en la nave)")]
@@ -29,7 +31,7 @@ public class PlayerController : MonoBehaviour
     public GameObject MissileMuzzleFx;
 
     private int CurrentWeapon = 0;
-    private int LastReadyMask = 7;     // bits: arma lista (1 = base, 2 = escopeta, 4 = misil)
+    private int LastReadyMask = 7;
     private float NextHudRefresh = 0f;
     private float[] RemainingCache = new float[3];
     private float[] CooldownCache = new float[3];
@@ -44,10 +46,15 @@ public class PlayerController : MonoBehaviour
         if (Time.timeScale == 0f) return;
 
         float HorizontalMovement = Input.GetAxisRaw("Horizontal");
-        transform.Translate(Vector3.right * HorizontalMovement * Speed * Time.deltaTime);
+        float VerticalMovement = 0f;
+        Vector3 Move = new Vector3(HorizontalMovement, VerticalMovement, 0f);
+        if (Move.sqrMagnitude > 1f) Move.Normalize();
+        transform.Translate(Move * Speed * Time.deltaTime, Space.World);
 
-        float ClampedX = Mathf.Clamp(transform.position.x, -LimitX, LimitX);
-        transform.position = new Vector3(ClampedX, transform.position.y, transform.position.z);
+        float ClampedX = Mathf.Clamp(transform.position.x, ScreenBounds.Left + MarginX, ScreenBounds.Right - MarginX);
+        float MaxY = ScreenBounds.Bottom + (ScreenBounds.Top - ScreenBounds.Bottom) * PlayableHeight;
+        float ClampedY = Mathf.Clamp(transform.position.y, ScreenBounds.Bottom + MarginBottom, MaxY);
+        transform.position = new Vector3(ClampedX, ClampedY, transform.position.z);
 
         if (Input.GetKeyDown(KeyCode.Alpha1) || Input.GetKeyDown(KeyCode.Keypad1)) SelectWeapon(0);
         if (Input.GetKeyDown(KeyCode.Alpha2) || Input.GetKeyDown(KeyCode.Keypad2)) SelectWeapon(1);
@@ -57,9 +64,7 @@ public class PlayerController : MonoBehaviour
         {
             TryShoot();
         }
-
-        // Refrescar el HUD cuando alguna arma termina de recargar,
-        // y en cada frame mientras haya alguna recarga (para que el circulo se llene fluido)
+        
         int ReadyMask = GetReadyMask();
         if (ReadyMask != LastReadyMask || (ReadyMask != 7 && Time.time >= NextHudRefresh))
         {
@@ -75,7 +80,6 @@ public class PlayerController : MonoBehaviour
 
     public bool TryShoot()
     {
-        // Solo importa la recarga del arma seleccionada; las demas siguen su propio tiempo
         if (GetRemaining(CurrentWeapon) > 0f) return false;
 
         switch (CurrentWeapon)
@@ -132,8 +136,7 @@ public class PlayerController : MonoBehaviour
             Instantiate(FxPrefab, FirePoint.position, Quaternion.identity);
         }
     }
-
-    // Segundos que le faltan al arma indicada para poder disparar de nuevo (0 = lista)
+    
     public float GetRemaining(int Weapon)
     {
         return Mathf.Max(0f, NextShotTimes[Mathf.Clamp(Weapon, 0, 2)] - Time.time);

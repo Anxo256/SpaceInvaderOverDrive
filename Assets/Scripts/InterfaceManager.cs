@@ -8,7 +8,7 @@ public class InterfaceManager : MonoBehaviour
 
     public TextMeshProUGUI ScoreText;
     public TextMeshProUGUI LivesText;
-    public WeaponSlotUI[] WeaponSlots;   // los 3 casilleros de arma (lado izquierdo)
+    public WeaponSlotUI[] WeaponSlots;
     public GameObject GameOverScreen;
     public TextMeshProUGUI GameOverText;
 
@@ -74,7 +74,6 @@ public class InterfaceManager : MonoBehaviour
         LivesText.text = "LIVES: " + Mathf.Max(CurrentLives, 0).ToString();
     }
 
-    // Actualiza los 3 casilleros de arma: el circulo se llena mientras recarga
     public void UpdateWeaponHud(int CurrentWeapon, float[] RemainingTimes, float[] Cooldowns)
     {
         if (WeaponSlots == null) return;
